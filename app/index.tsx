@@ -1,3 +1,4 @@
+import { router } from "expo-router";
 import { StyleSheet } from "react-native";
 import MapView, { Marker } from "react-native-maps";
 import { mockPOIs } from "../src/data/pois";
@@ -19,6 +20,12 @@ export default function MapScreen() {
           coordinate={{ latitude: poi.lat, longitude: poi.lng }}
           title={poi.title}
           description={poi.description}
+          onPress={() =>
+            router.push({
+              pathname: "/poi/[id]",
+              params: { id: poi.id },
+            })
+          }
         />
       ))}
     </MapView>
