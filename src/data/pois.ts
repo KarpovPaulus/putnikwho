@@ -9,7 +9,8 @@ export const mockPOIs: POI[] = [
     lng: 30.3146,
     description:
       "Один из крупнейших художественных музеев мира, расположен в Зимнем дворце.",
-    audioUrl: "https://example.com/audio/hermitage.mp3",
+    audioUrl:
+      "https://www.learningcontainer.com/wp-content/uploads/2020/02/Kalimba.mp3",
     imageUrl: "https://example.com/images/hermitage.jpg",
     orderInTour: 1,
   },
@@ -21,7 +22,8 @@ export const mockPOIs: POI[] = [
     lng: 30.3159,
     description:
       "Главная площадь Санкт-Петербурга с Александровской колонной в центре.",
-    audioUrl: "https://example.com/audio/palace-square.mp3",
+    audioUrl:
+      "https://www.learningcontainer.com/wp-content/uploads/2020/02/Kalimba.mp3",
     imageUrl: "https://example.com/images/palace-square.jpg",
     orderInTour: 2,
   },
@@ -32,7 +34,8 @@ export const mockPOIs: POI[] = [
     lat: 59.9343,
     lng: 30.3061,
     description: "Крупнейший православный храм Санкт-Петербурга.",
-    audioUrl: "https://example.com/audio/isaac-cathedral.mp3",
+    audioUrl:
+      "https://www.learningcontainer.com/wp-content/uploads/2020/02/Kalimba.mp3",
     imageUrl: "https://example.com/images/isaac-cathedral.jpg",
     orderInTour: 3,
   },
@@ -44,7 +47,8 @@ export const mockPOIs: POI[] = [
     lng: 30.3288,
     description:
       "Храм Воскресения Христова, построен на месте убийства Александра II.",
-    audioUrl: "https://example.com/audio/spas-na-krovi.mp3",
+    audioUrl:
+      "https://www.learningcontainer.com/wp-content/uploads/2020/02/Kalimba.mp3",
     imageUrl: "https://example.com/images/spas-na-krovi.jpg",
     orderInTour: 4,
   },
@@ -56,7 +60,8 @@ export const mockPOIs: POI[] = [
     lng: 30.3167,
     description:
       "Историческое ядро Санкт-Петербурга, основанное Петром I в 1703 году.",
-    audioUrl: "https://example.com/audio/peter-paul-fortress.mp3",
+    audioUrl:
+      "https://www.learningcontainer.com/wp-content/uploads/2020/02/Kalimba.mp3",
     imageUrl: "https://example.com/images/peter-paul-fortress.jpg",
     orderInTour: 5,
   },
