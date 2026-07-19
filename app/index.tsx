@@ -1,17 +1,32 @@
-import { StyleSheet, Text, View } from "react-native";
+import { StyleSheet } from "react-native";
+import MapView, { Marker } from "react-native-maps";
+import { mockPOIs } from "../src/data/pois";
 
 export default function MapScreen() {
   return (
-    <View style={styles.container}>
-      <Text>Карта будет здесь</Text>
-    </View>
+    <MapView
+      style={styles.map}
+      initialRegion={{
+        latitude: 59.9398,
+        longitude: 30.3146,
+        latitudeDelta: 0.05,
+        longitudeDelta: 0.05,
+      }}
+    >
+      {mockPOIs.map((poi) => (
+        <Marker
+          key={poi.id}
+          coordinate={{ latitude: poi.lat, longitude: poi.lng }}
+          title={poi.title}
+          description={poi.description}
+        />
+      ))}
+    </MapView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
+  map: {
     flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
   },
 });
