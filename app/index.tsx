@@ -7,13 +7,13 @@ import {
   Text,
   View,
 } from "react-native";
-import { mockTours } from "../src/data/tours";
+import { getTours } from "../src/data";
 
 export default function ToursListScreen() {
   return (
     <View style={styles.container}>
       <FlatList
-        data={mockTours}
+        data={getTours()}
         keyExtractor={(tour) => tour.id}
         renderItem={({ item }) => (
           <Pressable

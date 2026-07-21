@@ -3,11 +3,11 @@ import { router, useLocalSearchParams } from "expo-router";
 import { useEffect, useRef, useState } from "react";
 import { Pressable, StyleSheet, Text } from "react-native";
 import MapView, { Marker } from "react-native-maps";
-import { mockPOIs } from "../../src/data/pois";
+import { getPOIsByTour } from "../../src/data";
 
 export default function TourMapScreen() {
   const { tourId } = useLocalSearchParams<{ tourId: string }>();
-  const tourPOIs = mockPOIs.filter((poi) => poi.tourId === tourId);
+  const tourPOIs = getPOIsByTour(tourId);
 
   const [userLocation, setUserLocation] = useState<{
     latitude: number;

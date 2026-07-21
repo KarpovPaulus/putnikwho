@@ -1,7 +1,6 @@
-import { useAudioPlayer, useAudioPlayerStatus } from "expo-audio";
-import { useLocalSearchParams } from "expo-router";
+import { router, useLocalSearchParams } from "expo-router";
 import { Image, Pressable, StyleSheet, Text, View } from "react-native";
-import { mockPOIs } from "../../src/data/pois";
+import { getPOIById } from "../../src/data";
 import { formatDistance, getDistanceInMeters } from "../../src/utils/distance";
 
 export default function POIDetailScreen() {
@@ -10,12 +9,7 @@ export default function POIDetailScreen() {
     userLat: string;
     userLng: string;
   }>();
-  const poi = mockPOIs.find((p) => p.id === id);
-
-  const player = useAudioPlayer(
-    require("../../assets/audio/Enjoykin_-_Iducshij_k_Reke_(TheMP3.Info).mp3"),
-  );
-  const status = useAudioPlayerStatus(player);
+  const poi = getPOIById(id);
 
   if (!poi) {
     return (
@@ -35,17 +29,6 @@ export default function POIDetailScreen() {
         )
       : null;
 
-  const togglePlay = () => {
-    if (status.playing) {
-      player.pause();
-    } else {
-      player.play();
-    }
-  };
-
-  const progress =
-    status.duration > 0 ? status.currentTime / status.duration : 0;
-
   return (
     <View style={styles.container}>
       <Image source={{ uri: poi.imageUrl }} style={styles.image} />
@@ -57,17 +40,17 @@ export default function POIDetailScreen() {
       )}
       <Text style={styles.description}>{poi.description}</Text>
 
-      <Pressable style={styles.button} onPress={togglePlay}>
-        <Text style={styles.buttonText}>
-          {status.playing ? "Пауза" : "Слушать"}
-        </Text>
+      <Pressable
+        style={styles.button}
+        onPress={() =>
+          router.push({
+            pathname: "/player/[id]",
+            params: { id: poi.id },
+          })
+        }
+      >
+        <Text style={styles.buttonText}>Слушать</Text>
       </Pressable>
-
-      <View style={styles.progressBarBackground}>
-        <View
-          style={[styles.progressBarFill, { width: `${progress * 100}%` }]}
-        />
-      </View>
     </View>
   );
 }
@@ -89,14 +72,6 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     borderRadius: 8,
     alignItems: "center",
-    marginBottom: 16,
   },
   buttonText: { color: "#fff", fontSize: 16, fontWeight: "600" },
-  progressBarBackground: {
-    height: 4,
-    backgroundColor: "#ddd",
-    borderRadius: 2,
-    overflow: "hidden",
-  },
-  progressBarFill: { height: "100%", backgroundColor: "#2563eb" },
 });
