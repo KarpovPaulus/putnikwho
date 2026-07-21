@@ -39,7 +39,13 @@
           }
         }
       ],
-      "expo-audio"
+      "expo-audio",
+      [
+        "expo-location",
+        {
+          "locationWhenInUsePermission": "Позволь приложению использовать твою геолокацию, чтобы показывать расстояние до достопримечательностей."
+        }
+      ]
     ],
     "experiments": {
       "typedRoutes": true,

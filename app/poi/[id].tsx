@@ -2,12 +2,16 @@ import { useAudioPlayer, useAudioPlayerStatus } from "expo-audio";
 import { useLocalSearchParams } from "expo-router";
 import { Image, Pressable, StyleSheet, Text, View } from "react-native";
 import { mockPOIs } from "../../src/data/pois";
+import { formatDistance, getDistanceInMeters } from "../../src/utils/distance";
 
 export default function POIDetailScreen() {
-  const { id } = useLocalSearchParams<{ id: string }>();
+  const { id, userLat, userLng } = useLocalSearchParams<{
+    id: string;
+    userLat: string;
+    userLng: string;
+  }>();
   const poi = mockPOIs.find((p) => p.id === id);
 
-  //   const player = useAudioPlayer(poi ? { uri: poi.audioUrl } : null);
   const player = useAudioPlayer(
     require("../../assets/audio/Enjoykin_-_Iducshij_k_Reke_(TheMP3.Info).mp3"),
   );
@@ -21,8 +25,17 @@ export default function POIDetailScreen() {
     );
   }
 
+  const distance =
+    userLat && userLng
+      ? getDistanceInMeters(
+          parseFloat(userLat),
+          parseFloat(userLng),
+          poi.lat,
+          poi.lng,
+        )
+      : null;
+
   const togglePlay = () => {
-    console.log("button pressed, status:", status);
     if (status.playing) {
       player.pause();
     } else {
@@ -37,6 +50,11 @@ export default function POIDetailScreen() {
     <View style={styles.container}>
       <Image source={{ uri: poi.imageUrl }} style={styles.image} />
       <Text style={styles.title}>{poi.title}</Text>
+      {distance !== null && (
+        <Text style={styles.distance}>
+          📍 {formatDistance(distance)} от тебя
+        </Text>
+      )}
       <Text style={styles.description}>{poi.description}</Text>
 
       <Pressable style={styles.button} onPress={togglePlay}>
@@ -63,7 +81,8 @@ const styles = StyleSheet.create({
     marginBottom: 16,
     backgroundColor: "#ddd",
   },
-  title: { fontSize: 24, fontWeight: "bold", marginBottom: 8 },
+  title: { fontSize: 24, fontWeight: "bold", marginBottom: 4 },
+  distance: { fontSize: 14, color: "#2563eb", marginBottom: 12 },
   description: { fontSize: 16, color: "#444", marginBottom: 24 },
   button: {
     backgroundColor: "#2563eb",
@@ -79,8 +98,5 @@ const styles = StyleSheet.create({
     borderRadius: 2,
     overflow: "hidden",
   },
-  progressBarFill: {
-    height: "100%",
-    backgroundColor: "#2563eb",
-  },
+  progressBarFill: { height: "100%", backgroundColor: "#2563eb" },
 });
