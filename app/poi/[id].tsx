@@ -1,15 +1,13 @@
 import { router, useLocalSearchParams } from "expo-router";
 import { Image, Pressable, StyleSheet, Text, View } from "react-native";
 import { getPOIById } from "../../src/data";
+import { useAppSelector } from "../../src/store/hooks";
 import { formatDistance, getDistanceInMeters } from "../../src/utils/distance";
 
 export default function POIDetailScreen() {
-  const { id, userLat, userLng } = useLocalSearchParams<{
-    id: string;
-    userLat: string;
-    userLng: string;
-  }>();
+  const { id } = useLocalSearchParams<{ id: string }>();
   const poi = getPOIById(id);
+  const userLocation = useAppSelector((state) => state.location.coords);
 
   if (!poi) {
     return (
@@ -19,15 +17,14 @@ export default function POIDetailScreen() {
     );
   }
 
-  const distance =
-    userLat && userLng
-      ? getDistanceInMeters(
-          parseFloat(userLat),
-          parseFloat(userLng),
-          poi.lat,
-          poi.lng,
-        )
-      : null;
+  const distance = userLocation
+    ? getDistanceInMeters(
+        userLocation.latitude,
+        userLocation.longitude,
+        poi.lat,
+        poi.lng,
+      )
+    : null;
 
   return (
     <View style={styles.container}>

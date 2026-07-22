@@ -1,18 +1,18 @@
 import * as Location from "expo-location";
 import { router, useLocalSearchParams } from "expo-router";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 import { Pressable, StyleSheet, Text } from "react-native";
 import MapView, { Marker } from "react-native-maps";
 import { getPOIsByTour } from "../../src/data";
+import { useAppDispatch, useAppSelector } from "../../src/store/hooks";
+import { setUserLocation } from "../../src/store/locationSlice";
 
 export default function TourMapScreen() {
   const { tourId } = useLocalSearchParams<{ tourId: string }>();
   const tourPOIs = getPOIsByTour(tourId);
 
-  const [userLocation, setUserLocation] = useState<{
-    latitude: number;
-    longitude: number;
-  } | null>(null);
+  const dispatch = useAppDispatch();
+  const userLocation = useAppSelector((state) => state.location.coords);
   const mapRef = useRef<MapView>(null);
 
   useEffect(() => {
@@ -21,12 +21,14 @@ export default function TourMapScreen() {
       if (status !== "granted") return;
 
       const location = await Location.getCurrentPositionAsync({});
-      setUserLocation({
-        latitude: location.coords.latitude,
-        longitude: location.coords.longitude,
-      });
+      dispatch(
+        setUserLocation({
+          latitude: location.coords.latitude,
+          longitude: location.coords.longitude,
+        }),
+      );
     })();
-  }, []);
+  }, [dispatch]);
 
   const focusOnUser = () => {
     if (userLocation && mapRef.current) {
@@ -61,11 +63,7 @@ export default function TourMapScreen() {
             onPress={() =>
               router.push({
                 pathname: "/poi/[id]",
-                params: {
-                  id: poi.id,
-                  userLat: userLocation?.latitude?.toString() ?? "",
-                  userLng: userLocation?.longitude?.toString() ?? "",
-                },
+                params: { id: poi.id },
               })
             }
           />
