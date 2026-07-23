@@ -1,12 +1,17 @@
-import { useAudioPlayer, useAudioPlayerStatus } from "expo-audio";
-import { router, useLocalSearchParams } from "expo-router";
 import {
-    ActivityIndicator,
-    Image,
-    Pressable,
-    StyleSheet,
-    Text,
-    View,
+  setAudioModeAsync,
+  useAudioPlayer,
+  useAudioPlayerStatus,
+} from "expo-audio";
+import { router, useLocalSearchParams } from "expo-router";
+import { useEffect } from "react";
+import {
+  ActivityIndicator,
+  Image,
+  Pressable,
+  StyleSheet,
+  Text,
+  View,
 } from "react-native";
 import { getPOIById } from "../../src/data";
 
@@ -20,6 +25,16 @@ export default function FullScreenPlayerScreen() {
     require("../../assets/audio/Enjoykin_-_Iducshij_k_Reke_(TheMP3.Info).mp3"),
   );
   const status = useAudioPlayerStatus(player);
+
+  // Настраиваем аудиосессию под фон — один раз при открытии плеера
+  useEffect(() => {
+    setAudioModeAsync({
+      playsInSilentMode: true, // iOS: играть, даже если тумблер "без звука" включён
+      shouldPlayInBackground: true, // не глушить при сворачивании / гашении экрана
+      interruptionMode: "doNotMix",
+      interruptionModeAndroid: "doNotMix",
+    });
+  }, []);
 
   if (!poi) {
     return (
@@ -38,6 +53,15 @@ export default function FullScreenPlayerScreen() {
     if (status.duration > 0 && status.currentTime >= status.duration) {
       player.seekTo(0);
     }
+
+    // Включаем медиа-уведомление и контролы на локскрине.
+    // На Android именно это запускает foreground-сервис, который держит звук в фоне.
+    player.setActiveForLockScreen(true, {
+      title: poi.title,
+      artist: "PutnikWho",
+      albumTitle: "Аудиогид",
+    });
+
     player.play();
   };
 
