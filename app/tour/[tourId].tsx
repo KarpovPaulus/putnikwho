@@ -1,7 +1,8 @@
+import BottomSheet, { BottomSheetView } from "@gorhom/bottom-sheet";
 import * as Location from "expo-location";
 import { router, useLocalSearchParams } from "expo-router";
-import { useEffect, useRef } from "react";
-import { Pressable, StyleSheet, Text } from "react-native";
+import { useEffect, useMemo, useRef } from "react";
+import { Pressable, StyleSheet, Text, View } from "react-native";
 import MapView, { Marker } from "react-native-maps";
 import { getPOIsByTour } from "../../src/data";
 import { useAppDispatch, useAppSelector } from "../../src/store/hooks";
@@ -14,6 +15,7 @@ export default function TourMapScreen() {
   const dispatch = useAppDispatch();
   const userLocation = useAppSelector((state) => state.location.coords);
   const mapRef = useRef<MapView>(null);
+  const snapPoints = useMemo(() => ["15%", "50%", "90%"], []);
 
   useEffect(() => {
     (async () => {
@@ -42,7 +44,7 @@ export default function TourMapScreen() {
   };
 
   return (
-    <>
+    <View style={{ flex: 1 }}>
       <MapView
         ref={mapRef}
         style={styles.map}
@@ -73,7 +75,13 @@ export default function TourMapScreen() {
       <Pressable style={styles.locationButton} onPress={focusOnUser}>
         <Text style={styles.locationButtonText}>📍</Text>
       </Pressable>
-    </>
+
+      <BottomSheet index={0} snapPoints={snapPoints}>
+        <BottomSheetView>
+          <Text style={{ fontSize: 16 }}>Шторка работает ✅</Text>
+        </BottomSheetView>
+      </BottomSheet>
+    </View>
   );
 }
 
