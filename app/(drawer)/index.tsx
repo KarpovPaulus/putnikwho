@@ -1,3 +1,6 @@
+import { getPointsByTour } from "@/data"; // ← было getPOIsByTour
+import { useAppDispatch, useAppSelector } from "@/store/hooks";
+import { setUserLocation } from "@/store/locationSlice";
 import BottomSheet, { BottomSheetView } from "@gorhom/bottom-sheet";
 import { DrawerActions } from "@react-navigation/native";
 import * as Location from "expo-location";
@@ -12,15 +15,12 @@ import {
 } from "react-native";
 import MapView, { Marker } from "react-native-maps";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { getPOIsByTour } from "../../src/data";
-import { useAppDispatch, useAppSelector } from "../../src/store/hooks";
-import { setUserLocation } from "../../src/store/locationSlice";
 
-// Временно захардкожен один тур. На шаге 4 заменим на activeTourId из Redux.
+// Временно захардкожен один тур. Позже заменим на выбор из списка.
 const ACTIVE_TOUR_ID = "tour-1";
 
 export default function MapScreen() {
-  const pois = getPOIsByTour(ACTIVE_TOUR_ID);
+  const points = getPointsByTour(ACTIVE_TOUR_ID); // ← было pois
 
   const dispatch = useAppDispatch();
   const userLocation = useAppSelector((state) => state.location.coords);
@@ -66,8 +66,8 @@ export default function MapScreen() {
         ref={mapRef}
         style={StyleSheet.absoluteFill}
         initialRegion={{
-          latitude: pois[0]?.lat ?? 59.9398,
-          longitude: pois[0]?.lng ?? 30.3146,
+          latitude: points[0]?.lat ?? 59.9398, // ← points
+          longitude: points[0]?.lng ?? 30.3146, // ← points
           latitudeDelta: 0.05,
           longitudeDelta: 0.05,
         }}
@@ -79,13 +79,16 @@ export default function MapScreen() {
           left: 0,
         }}
       >
-        {pois.map((poi) => (
+        {points.map((point) => (
           <Marker
-            key={poi.id}
-            coordinate={{ latitude: poi.lat, longitude: poi.lng }}
-            title={poi.title}
+            key={point.id}
+            coordinate={{ latitude: point.lat, longitude: point.lng }}
+            title={point.title}
             onPress={() =>
-              router.push({ pathname: "/poi/[id]", params: { id: poi.id } })
+              router.push({
+                pathname: "/point/[pointId]", // ← было /poi/[id]
+                params: { pointId: point.id }, // ← было { id }
+              })
             }
           />
         ))}

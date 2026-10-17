@@ -1,3 +1,4 @@
+import { getPointById } from "@/data"; // ← было getPOIById
 import {
   setAudioModeAsync,
   useAudioPlayer,
@@ -13,14 +14,13 @@ import {
   Text,
   View,
 } from "react-native";
-import { getPOIById } from "../../src/data";
 
 export default function FullScreenPlayerScreen() {
-  const { id } = useLocalSearchParams<{ id: string }>();
-  const poi = getPOIById(id);
+  const { pointId } = useLocalSearchParams<{ pointId: string }>(); // ← было id
+  const point = getPointById(pointId); // ← было poi
 
-  // Пока аудио одно на всех точек — реальные mp3 по точкам появятся вместе
-  // с бэкендом (Этап 4, хранение в R2). Тогда источник станет { uri: poi.audioUrl }.
+  // Пока аудио одно на все точки — реальные файлы появятся вместе с бэкендом.
+  // Тогда источник станет { uri: track.audioUrl }.
   const player = useAudioPlayer(
     require("../../assets/audio/Enjoykin_-_Iducshij_k_Reke_(TheMP3.Info).mp3"),
   );
@@ -36,7 +36,7 @@ export default function FullScreenPlayerScreen() {
     });
   }, []);
 
-  if (!poi) {
+  if (!point) {
     return (
       <View style={styles.container}>
         <Text style={styles.description}>Точка не найдена</Text>
@@ -57,7 +57,7 @@ export default function FullScreenPlayerScreen() {
     // Включаем медиа-уведомление и контролы на локскрине.
     // На Android именно это запускает foreground-сервис, который держит звук в фоне.
     player.setActiveForLockScreen(true, {
-      title: poi.title,
+      title: point.title, // ← poi → point
       artist: "PutnikWho",
       albumTitle: "Аудиогид",
     });
@@ -81,10 +81,17 @@ export default function FullScreenPlayerScreen() {
         <Text style={styles.closeButtonText}>✕</Text>
       </Pressable>
 
-      <Image source={{ uri: poi.imageUrl }} style={styles.cover} />
+      {/* ← фото необязательно: без него заглушка */}
+      {point.photoUrl ? (
+        <Image source={{ uri: point.photoUrl }} style={styles.cover} />
+      ) : (
+        <View style={styles.cover} />
+      )}
 
-      <Text style={styles.title}>{poi.title}</Text>
-      <Text style={styles.description}>{poi.description}</Text>
+      <Text style={styles.title}>{point.title}</Text>
+      <Text style={styles.description}>{point.description}</Text>
+
+      {/* ниже — всё как было: прогресс, время, кнопка ▶/⏸ */}
 
       <View style={styles.progressBarBackground}>
         <View

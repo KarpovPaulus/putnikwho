@@ -1,7 +1,7 @@
+import { store } from "@/store";
 import { Stack } from "expo-router";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { Provider } from "react-redux";
-import { store } from "../src/store";
 
 export default function RootLayout() {
   return (
@@ -9,9 +9,9 @@ export default function RootLayout() {
       <Provider store={store}>
         <Stack>
           <Stack.Screen name="(drawer)" options={{ headerShown: false }} />
-          <Stack.Screen name="tour/[tourId]" options={{ title: "Маршрут" }} />
+          <Stack.Screen name="point/[pointId]" options={{ title: "Точка" }} />
           <Stack.Screen
-            name="player/[id]"
+            name="player/[pointId]"
             options={{ presentation: "modal", headerShown: false }}
           />
         </Stack>

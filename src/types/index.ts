@@ -1,27 +1,35 @@
-// Экскурсия — набор точек, объединённых одной темой/маршрутом
+// Клиентские типы — «опубликованный вид» экскурсии для слушателя.
+// Серверная модель (TourVersion, MediaFile, статусы модерации) сюда не попадает:
+// API отдаёт уже собранную опубликованную версию.
+
 export interface Tour {
   id: string;
   title: string;
   description: string;
-  coverImage: string; // URL или путь к картинке
-  isFree: boolean;
+  coverUrl: string | null; // null — показываем заглушку
+  isPaid: boolean;
 }
 
-// Точка на карте (Point of Interest), привязана к конкретной экскурсии
-export interface POI {
-  id: string;
-  tourId: string; // ссылка на Tour, к которому относится точка
+export interface Point {
+  id: string; // id копии точки в конкретной версии экскурсии
+  stableId: string; // сквозной id — общий для всех версий; к нему привязан прогресс
+  tourId: string;
   title: string;
-  lat: number; // широта
-  lng: number; // долгота
-  description: string;
-  audioUrl: string; // ссылка на mp3-файл
-  imageUrl: string;
-  orderInTour: number; // порядковый номер точки в маршруте (1, 2, 3...)
+  lat: number;
+  lng: number;
+  description: string | null;
+  photoUrl: string | null;
+  orderInTour: number; // 1, 2, 3...
+  tracks: Track[]; // уже отсортированы по orderInPoint
 }
 
-// Прогресс пользователя — пока просто списки ID
-export interface UserProgress {
-  listenedPOIs: string[]; // id точек, которые уже прослушаны
-  favoriteTours: string[]; // id избранных экскурсий
+export interface Track {
+  id: string;
+  stableId: string;
+  pointId: string;
+  title: string;
+  audioUrl: string;
+  photoUrl: string | null;
+  durationSec: number;
+  orderInPoint: number;
 }

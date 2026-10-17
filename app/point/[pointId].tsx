@@ -1,15 +1,15 @@
+import { getPointById } from "@/data"; // ← было getPOIById
+import { useAppSelector } from "@/store/hooks";
+import { formatDistance, getDistanceInMeters } from "@/utils/distance";
 import { router, useLocalSearchParams } from "expo-router";
 import { Image, Pressable, StyleSheet, Text, View } from "react-native";
-import { getPOIById } from "../../src/data";
-import { useAppSelector } from "../../src/store/hooks";
-import { formatDistance, getDistanceInMeters } from "../../src/utils/distance";
 
-export default function POIDetailScreen() {
-  const { id } = useLocalSearchParams<{ id: string }>();
-  const poi = getPOIById(id);
+export default function PointScreen() {
+  const { pointId } = useLocalSearchParams<{ pointId: string }>(); // ← было id
+  const point = getPointById(pointId); // ← было poi
   const userLocation = useAppSelector((state) => state.location.coords);
 
-  if (!poi) {
+  if (!point) {
     return (
       <View style={styles.container}>
         <Text>Точка не найдена</Text>
@@ -21,28 +21,33 @@ export default function POIDetailScreen() {
     ? getDistanceInMeters(
         userLocation.latitude,
         userLocation.longitude,
-        poi.lat,
-        poi.lng,
+        point.lat,
+        point.lng,
       )
     : null;
 
   return (
     <View style={styles.container}>
-      <Image source={{ uri: poi.imageUrl }} style={styles.image} />
-      <Text style={styles.title}>{poi.title}</Text>
+      {/* ← фото необязательно: без него серая заглушка */}
+      {point.photoUrl ? (
+        <Image source={{ uri: point.photoUrl }} style={styles.image} />
+      ) : (
+        <View style={styles.image} />
+      )}
+      <Text style={styles.title}>{point.title}</Text>
       {distance !== null && (
         <Text style={styles.distance}>
           📍 {formatDistance(distance)} от тебя
         </Text>
       )}
-      <Text style={styles.description}>{poi.description}</Text>
+      <Text style={styles.description}>{point.description}</Text>
 
       <Pressable
         style={styles.button}
         onPress={() =>
           router.push({
-            pathname: "/player/[id]",
-            params: { id: poi.id },
+            pathname: "/player/[pointId]", // ← было /player/[id]
+            params: { pointId: point.id },
           })
         }
       >

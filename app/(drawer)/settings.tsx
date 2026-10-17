@@ -3,7 +3,7 @@ import { StyleSheet, Text, View } from "react-native";
 export default function SettingsScreen() {
   return (
     <View style={styles.container}>
-      <Text>Избранное — скоро</Text>
+      <Text>Настройки — скоро</Text>
     </View>
   );
 }
