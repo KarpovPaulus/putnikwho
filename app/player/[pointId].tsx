@@ -1,4 +1,6 @@
-import { getPointById } from "@/data"; // ← было getPOIById
+import { useGetTourQuery } from "@/api";
+import type { Point, Track } from "@/types";
+import { skipToken } from "@reduxjs/toolkit/query";
 import {
   setAudioModeAsync,
   useAudioPlayer,
@@ -15,16 +17,16 @@ import {
   View,
 } from "react-native";
 
+// Экран: находит точку и трек. Сам плеер — в компоненте Player ниже.
 export default function FullScreenPlayerScreen() {
-  const { pointId } = useLocalSearchParams<{ pointId: string }>(); // ← было id
-  const point = getPointById(pointId); // ← было poi
-
-  // Пока аудио одно на все точки — реальные файлы появятся вместе с бэкендом.
-  // Тогда источник станет { uri: track.audioUrl }.
-  const player = useAudioPlayer(
-    require("../../assets/audio/Enjoykin_-_Iducshij_k_Reke_(TheMP3.Info).mp3"),
-  );
-  const status = useAudioPlayerStatus(player);
+  const { pointId, tourId } = useLocalSearchParams<{
+    pointId: string;
+    tourId: string;
+  }>();
+  const { data: tour, isLoading, error } = useGetTourQuery(tourId ?? skipToken);
+  const point = tour?.points.find((p) => p.id === pointId);
+  // 0.1: играем первый трек точки. Список треков и переключение — в 0.2
+  const track = point?.tracks[0];
 
   // Настраиваем аудиосессию под фон — один раз при открытии плеера
   useEffect(() => {
@@ -36,13 +38,40 @@ export default function FullScreenPlayerScreen() {
     });
   }, []);
 
-  if (!point) {
+  if (isLoading) {
     return (
       <View style={styles.container}>
-        <Text style={styles.description}>Точка не найдена</Text>
+        <ActivityIndicator color="#fff" />
       </View>
     );
   }
+
+  if (error || !point) {
+    return (
+      <View style={styles.container}>
+        <Text style={styles.description}>
+          {error ? "Не удалось загрузить точку" : "Точка не найдена"}
+        </Text>
+      </View>
+    );
+  }
+
+  if (!track?.audioUrl) {
+    return (
+      <View style={styles.container}>
+        <Text style={styles.description}>У этой точки пока нет аудио</Text>
+      </View>
+    );
+  }
+
+  return <Player point={point} track={track} audioUrl={track.audioUrl} />;
+}
+
+type PlayerProps = { point: Point; track: Track; audioUrl: string };
+
+function Player({ point, track, audioUrl }: PlayerProps) {
+  const player = useAudioPlayer({ uri: audioUrl });
+  const status = useAudioPlayerStatus(player);
 
   const togglePlay = () => {
     if (status.playing) {
@@ -57,9 +86,9 @@ export default function FullScreenPlayerScreen() {
     // Включаем медиа-уведомление и контролы на локскрине.
     // На Android именно это запускает foreground-сервис, который держит звук в фоне.
     player.setActiveForLockScreen(true, {
-      title: point.title, // ← poi → point
-      artist: "PutnikWho",
-      albumTitle: "Аудиогид",
+      title: track.title,
+      artist: point.title,
+      albumTitle: "PutnikWho",
     });
 
     player.play();
@@ -81,17 +110,18 @@ export default function FullScreenPlayerScreen() {
         <Text style={styles.closeButtonText}>✕</Text>
       </Pressable>
 
-      {/* ← фото необязательно: без него заглушка */}
-      {point.photoUrl ? (
-        <Image source={{ uri: point.photoUrl }} style={styles.cover} />
+      {/* фото трека → фото точки → заглушка */}
+      {(track.photoUrl ?? point.photoUrl) ? (
+        <Image
+          source={{ uri: (track.photoUrl ?? point.photoUrl)! }}
+          style={styles.cover}
+        />
       ) : (
         <View style={styles.cover} />
       )}
 
-      <Text style={styles.title}>{point.title}</Text>
-      <Text style={styles.description}>{point.description}</Text>
-
-      {/* ниже — всё как было: прогресс, время, кнопка ▶/⏸ */}
+      <Text style={styles.title}>{track.title}</Text>
+      <Text style={styles.description}>{point.title}</Text>
 
       <View style={styles.progressBarBackground}>
         <View

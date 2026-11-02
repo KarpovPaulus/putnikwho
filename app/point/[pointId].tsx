@@ -1,18 +1,39 @@
-import { getPointById } from "@/data"; // ← было getPOIById
+import { useGetTourQuery } from "@/api";
 import { useAppSelector } from "@/store/hooks";
 import { formatDistance, getDistanceInMeters } from "@/utils/distance";
+import { skipToken } from "@reduxjs/toolkit/query";
 import { router, useLocalSearchParams } from "expo-router";
-import { Image, Pressable, StyleSheet, Text, View } from "react-native";
+import {
+  ActivityIndicator,
+  Image,
+  Pressable,
+  StyleSheet,
+  Text,
+  View,
+} from "react-native";
 
 export default function PointScreen() {
-  const { pointId } = useLocalSearchParams<{ pointId: string }>(); // ← было id
-  const point = getPointById(pointId); // ← было poi
+  const { pointId, tourId } = useLocalSearchParams<{
+    pointId: string;
+    tourId: string;
+  }>();
+  // Экскурсия уже в кэше RTK Query (её загрузила карта) — запроса в сеть не будет
+  const { data: tour, isLoading, error } = useGetTourQuery(tourId ?? skipToken);
+  const point = tour?.points.find((p) => p.id === pointId);
   const userLocation = useAppSelector((state) => state.location.coords);
 
-  if (!point) {
+  if (isLoading) {
     return (
       <View style={styles.container}>
-        <Text>Точка не найдена</Text>
+        <ActivityIndicator />
+      </View>
+    );
+  }
+
+  if (error || !point) {
+    return (
+      <View style={styles.container}>
+        <Text>{error ? "Не удалось загрузить точку" : "Точка не найдена"}</Text>
       </View>
     );
   }
@@ -47,7 +68,7 @@ export default function PointScreen() {
         onPress={() =>
           router.push({
             pathname: "/player/[pointId]", // ← было /player/[id]
-            params: { pointId: point.id },
+            params: { pointId: point.id, tourId },
           })
         }
       >

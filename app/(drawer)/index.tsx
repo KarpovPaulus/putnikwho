@@ -1,8 +1,9 @@
-import { getPointsByTour } from "@/data"; // ← было getPOIsByTour
+import { useGetTourQuery, useGetToursQuery } from "@/api";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { setUserLocation } from "@/store/locationSlice";
 import BottomSheet, { BottomSheetView } from "@gorhom/bottom-sheet";
 import { DrawerActions } from "@react-navigation/native";
+import { skipToken } from "@reduxjs/toolkit/query";
 import * as Location from "expo-location";
 import { router, useNavigation } from "expo-router";
 import { useEffect, useMemo, useRef } from "react";
@@ -16,11 +17,17 @@ import {
 import MapView, { Marker } from "react-native-maps";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
-// Временно захардкожен один тур. Позже заменим на выбор из списка.
-const ACTIVE_TOUR_ID = "tour-1";
-
 export default function MapScreen() {
-  const points = getPointsByTour(ACTIVE_TOUR_ID); // ← было pois
+  // 0.1: на карте первая экскурсия из списка. Выбор экскурсии — в 0.2
+  const toursQuery = useGetToursQuery();
+  const firstTourId = toursQuery.data?.[0]?.id;
+  // skipToken — «не запрашивать», пока id нет (аналог enabled: false в React Query)
+  const tourQuery = useGetTourQuery(firstTourId ?? skipToken);
+
+  const tour = tourQuery.data;
+  const points = tour?.points ?? [];
+  const isLoading = toursQuery.isLoading || tourQuery.isLoading;
+  const hasError = Boolean(toursQuery.error || tourQuery.error);
 
   const dispatch = useAppDispatch();
   const userLocation = useAppSelector((state) => state.location.coords);
@@ -86,8 +93,8 @@ export default function MapScreen() {
             title={point.title}
             onPress={() =>
               router.push({
-                pathname: "/point/[pointId]", // ← было /poi/[id]
-                params: { pointId: point.id }, // ← было { id }
+                pathname: "/point/[pointId]",
+                params: { pointId: point.id, tourId: tour!.id },
               })
             }
           />
@@ -107,7 +114,11 @@ export default function MapScreen() {
         <BottomSheetView style={styles.sheetContent}>
           <Text style={styles.sheetTitle}>Экскурсии рядом</Text>
           <Text style={styles.sheetHint}>
-            Список появится на следующем шаге
+            {isLoading
+              ? "Загружаем экскурсии…"
+              : hasError
+                ? "Не удалось загрузить — проверь, запущен ли сервер"
+                : `${tour?.title ?? "Экскурсий нет"} · точек: ${points.length}`}
           </Text>
         </BottomSheetView>
       </BottomSheet>
