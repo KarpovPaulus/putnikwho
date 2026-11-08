@@ -1,10 +1,12 @@
 import { api } from "@/api";
 import { configureStore } from "@reduxjs/toolkit";
 import locationReducer from "./locationSlice";
+import settingsSlice from "./settingsSlice";
 
 export const store = configureStore({
   reducer: {
     location: locationReducer, // ключ → state.location.*
+    settings: settingsSlice,
     [api.reducerPath]: api.reducer, // ключ → state.api.* (кэш запросов)
   },
   // Middleware RTK Query: запускает запросы, ведёт кэш,
