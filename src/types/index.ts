@@ -1,7 +1,7 @@
 // Клиентские типы — то, что отдаёт API. Генерируются из бэкенда:
 // npm run gen:api (бэкенд должен быть запущен). Руками не править.
 // id точки и трека — это их stableId: к нему привязан прогресс.
-import type { components } from "@/api/schema";
+import type { components, operations } from "@/api/schema";
 
 type Schemas = components["schemas"];
 
@@ -11,3 +11,8 @@ export type TourListItem = Schemas["TourListItemDto"];
 export type TourDetails = Schemas["TourDetailsDto"];
 export type Point = Schemas["PointDto"];
 export type Track = Schemas["TrackDto"];
+// Параметры GET /tours (поиск и фильтры) — из описания API бэкенда
+export type ToursQuery = NonNullable<
+  operations["ToursController_findAll"]["parameters"]["query"]
+>;
+export type Category = Schemas["CategoryDto"];

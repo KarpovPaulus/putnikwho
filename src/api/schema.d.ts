@@ -68,10 +68,30 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/categories": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["CategoriesController_findAll"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
+        /** @enum {string} */
+        PriceFilter: "free" | "paid";
+        /** @enum {string} */
+        DurationFilter: "upTo30" | "upTo60" | "over60";
         /** @enum {string} */
         TourFormat: "WITH_POINTS" | "SINGLE_PLACE";
         /** @enum {string} */
@@ -88,6 +108,10 @@ export interface components {
             kidsFriendly: boolean;
             /** @description Названия категорий */
             categories: string[];
+            /** @description Суммарная длительность треков в видимых точках, сек (0 — если длительность неизвестна) */
+            durationSec: number;
+            /** @description Количество видимых точек (у экскурсии «одно место» — 1) */
+            pointsCount: number;
         };
         TrackDto: {
             /** @description Сквозной id трека (stableId) — к нему привязан прогресс слушателя */
@@ -121,7 +145,15 @@ export interface components {
             kidsFriendly: boolean;
             /** @description Названия категорий */
             categories: string[];
+            /** @description Суммарная длительность треков в видимых точках, сек (0 — если длительность неизвестна) */
+            durationSec: number;
+            /** @description Количество видимых точек (у экскурсии «одно место» — 1) */
+            pointsCount: number;
             points: components["schemas"]["PointDto"][];
+        };
+        CategoryDto: {
+            id: string;
+            name: string;
         };
     };
     responses: never;
@@ -170,7 +202,18 @@ export interface operations {
     };
     ToursController_findAll: {
         parameters: {
-            query?: never;
+            query?: {
+                /** @description Поиск по названию экскурсии и названиям её точек */
+                q?: string;
+                price?: components["schemas"]["PriceFilter"];
+                /** @description upTo30 — до 30 мин, upTo60 — до часа, over60 — больше часа */
+                duration?: components["schemas"]["DurationFilter"];
+                format?: components["schemas"]["TourFormat"];
+                /** @description Только экскурсии с пометкой «Подходит для детей» */
+                kids?: boolean;
+                /** @description id категорий через запятую. Подходит экскурсия, у которой есть хотя бы одна из них */
+                categories?: string;
+            };
             header?: never;
             path?: never;
             cookie?: never;
@@ -204,6 +247,25 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["TourDetailsDto"];
+                };
+            };
+        };
+    };
+    CategoriesController_findAll: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CategoryDto"][];
                 };
             };
         };

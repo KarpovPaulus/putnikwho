@@ -1,3 +1,4 @@
+import { AppNavigationTheme } from "@/components/navigation/AppNavigationTheme";
 import { store } from "@/store";
 import { useFonts } from "expo-font";
 import { Stack } from "expo-router";
@@ -6,7 +7,7 @@ import { useEffect } from "react";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { Provider } from "react-redux";
 
-// Держим сплэш, пока не загрузятся шрифты (иначе мелькнёт системный шрифт)
+// Держим сплэш, пока не загрузятся шрифты
 SplashScreen.preventAutoHideAsync();
 
 export default function RootLayout() {
@@ -28,14 +29,21 @@ export default function RootLayout() {
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <Provider store={store}>
-        <Stack>
-          <Stack.Screen name="(drawer)" options={{ headerShown: false }} />
-          <Stack.Screen name="point/[pointId]" options={{ title: "Точка" }} />
-          <Stack.Screen
-            name="player/[pointId]"
-            options={{ presentation: "modal", headerShown: false }}
-          />
-        </Stack>
+        <AppNavigationTheme>
+          <Stack>
+            <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+            <Stack.Screen name="point/[pointId]" options={{ title: "Точка" }} />
+            <Stack.Screen
+              name="player/[pointId]"
+              options={{ presentation: "modal", headerShown: false }}
+            />
+            <Stack.Screen name="ui-preview" options={{ title: "UI-витрина" }} />
+            <Stack.Screen
+              name="tour/[tourId]"
+              options={{ title: "Экскурсия" }}
+            />
+          </Stack>
+        </AppNavigationTheme>
       </Provider>
     </GestureHandlerRootView>
   );
